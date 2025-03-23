@@ -1,0 +1,580 @@
+Documento de Escopo do Projeto: Aplicativo de Treino Pessoal
+1. Introdução
+2. Objetivo do Projeto
+O objetivo é criar um aplicativo que permita:
+Listar exercícios disponíveis com filtros e detalhes específicos.
+
+Planejar treinos estruturados em macrociclos com objetivos personalizados (ex.: força, hipertrofia).
+
+Registrar execuções de treinos e manter um histórico detalhado do desempenho.
+
+Sugerir aumentos de carga com base no progresso do usuário.
+
+3. Tabelas do Notion e Suas Funções
+O banco de dados é composto por 10 tabelas no Notion, cada uma com uma função específica e interligada para oferecer uma visão completa do treinamento.
+3.1. Users Table
+Função: Armazena informações do usuário, como nome, email, objetivos de fitness, experiência de treinamento e tempo disponível.
+
+Colunas Principais: Name (Title), Email (Text), Fitness Goal (Select), Training Experience (Select), Available Time (Number).
+
+Relacionamento: Vinculada à tabela Macrocycles (um usuário pode ter vários macrociclos).
+
+3.2. Muscle Groups Table
+Função: Lista os grupos musculares e seus tempos de recuperação recomendados.
+
+Colunas Principais: Name (Title), Recovery Time (Number).
+
+Relacionamento: Conectada à tabela Exercise Muscle Mapping para mapear os grupos musculares trabalhados por cada exercício.
+
+3.3. Exercises Table
+Função: Contém uma lista de exercícios com nome, equipamento necessário, tipo (composto ou isolamento), intensidade e caminho da imagem.
+
+Colunas Principais: Name (Title), Equipment (Select), Type (Select), Intensity Level (Number), Image Path (Text).
+
+Relacionamento: Relacionada a Exercise Muscle Mapping, Exercise Compatibility e Workout Plan Exercises.
+
+3.4. Exercise Muscle Mapping Table
+Função: Mapeia os grupos musculares trabalhados por cada exercício, indicando a porcentagem de contribuição e se é o grupo primário.
+
+Colunas Principais: Exercise (Relation), Muscle (Relation), Contribution (Number), Is Primary (Checkbox).
+
+Relacionamento: Liga Exercises e Muscle Groups.
+
+3.5. Exercise Compatibility Table
+Função: Identifica pares de exercícios que não devem ser feitos juntos no mesmo treino, devido a sobrecarga muscular.
+
+Colunas Principais: Exercise 1 (Relation), Exercise 2 (Relation), Reason (Text).
+
+Relacionamento: Vinculada a Exercises para evitar combinações inadequadas.
+
+3.6. Macrocycles Table
+Função: Armazena os macrociclos de periodização, com objetivos como força ou hipertrofia.
+
+Colunas Principais: Name (Title), User (Relation), Start Date (Date), End Date (Date), Goal (Select).
+
+Relacionamento: Conectada a Users e Workout Plans.
+
+3.7. Workout Plans Table
+Função: Contém os templates de treinos vinculados a um macrociclo, com uma ordem sequencial.
+
+Colunas Principais: Name (Title), Macrocycle (Relation), Sequence Order (Number).
+
+Relacionamento: Liga Macrocycles e Workout Plan Exercises.
+
+3.8. Workout Plan Exercises Table
+Função: Detalha os exercícios de cada plano de treino, com séries, repetições, peso sugerido e descanso.
+
+Colunas Principais: Plan (Relation), Exercise (Relation), Sets (Number), Reps (Number), Weight (Number), Rest Between Sets (Number).
+
+Relacionamento: Conecta Workout Plans e Exercises.
+
+3.9. Workout Plan Execution Table
+Função: Registra as execuções dos planos de treino, com data e notas do usuário.
+
+Colunas Principais: Plan (Relation), User (Relation), Date (Date), Notes (Text).
+
+Relacionamento: Vinculada a Workout Plans e Users.
+
+3.10. Exercise History Table
+Função: Armazena o histórico detalhado de cada exercício realizado, como séries, repetições e peso.
+
+Colunas Principais: Execution (Relation), Exercise (Relation), Plan Exercise (Relation), Sets Completed (Number), Reps Completed (Number), Weight Used (Number), Timestamp (Date).
+
+Relacionamento: Liga Workout Plan Execution, Exercises e Workout Plan Exercises.
+
+4. Relacionamentos Entre as Tabelas
+Os relacionamentos são implementados via propriedades "Relation" no Notion e estruturam a lógica do aplicativo:
+Users → Macrocycles: Um usuário pode ter vários macrociclos.
+
+Macrocycles → Workout Plans: Cada macrociclo contém vários planos de treino.
+
+Workout Plans → Workout Plan Exercises: Cada plano lista seus exercícios.
+
+Workout Plan Exercises → Exercises: Referencia exercícios específicos.
+
+Workout Plan Execution → Workout Plans e Users: Registra execuções por usuário.
+
+Exercise History → Workout Plan Execution, Exercises e Workout Plan Exercises: Detalha o desempenho.
+
+Exercises → Exercise Muscle Mapping e Exercise Compatibility: Mapeia músculos e incompatibilidades.
+
+Muscle Groups → Exercise Muscle Mapping: Identifica grupos musculares trabalhados.
+
+Esses relacionamentos garantem que os treinos sejam personalizados, respeitem tempos de recuperação e evitem incompatibilidades, além de permitir o acompanhamento do progresso.
+5. Funcionalidades do Aplicativo
+O aplicativo terá as seguintes funcionalidades principais:
+5.1. Listar Exercícios e Detalhes
+Exibir todos os exercícios com filtros (grupo muscular, equipamento, etc.).
+
+Mostrar detalhes como grupos musculares trabalhados e incompatibilidades.
+
+Tabelas: Exercises, Exercise Muscle Mapping, Exercise Compatibility.
+
+5.2. Planejar Treinos com Periodização
+Criar macrociclos com objetivos específicos.
+
+Definir planos de treino com exercícios, séries, repetições, peso e descanso, respeitando incompatibilidades.
+
+Tabelas: Macrocycles, Workout Plans, Workout Plan Exercises, Exercises, Exercise Compatibility, Muscle Groups.
+
+5.3. Registrar Execuções e Histórico
+Registrar a execução de treinos com data e notas.
+
+Armazenar o histórico detalhado de cada exercício (séries, repetições, peso).
+
+Tabelas: Workout Plan Execution, Exercise History, Workout Plans, Users.
+
+5.4. Sugerir Aumentos de Carga
+Analisar o histórico de desempenho e sugerir aumentos de carga (ex.: +5% se todas as repetições forem completadas).
+
+Tabelas: Exercise History, Workout Plan Exercises.
+
+6. Integração com Vercel e Notion
+Hospedagem: O aplicativo usa o Vercel para deploy contínuo.
+
+Banco de Dados: O Notion é acessado via API, com as tabelas descritas.
+
+Segurança: O token da API do Notion deve ser armazenado em variáveis de ambiente no Vercel.
+
+Performance: Implementar cache local para reduzir chamadas à API e suportar uso offline parcial.
+
+7. Conclusão
+O projeto cria um aplicativo robusto para planejamento e acompanhamento de treinos, utilizando o Notion como banco de dados e o Vercel para hospedagem. As tabelas interligadas suportam funcionalidades avançadas como periodização e sugestões de carga, oferecendo uma experiência personalizada. Se precisar de ajuda com a implementação ou mais detalhes, é só avisar!
+
+aqui esta um exemplo de como a tela de execucao do exercicio deveria aparecer: ( o timer eh uma coisa que queremos): ok. Vamos criar um app. o objetivo final eh ter algo que eu possa usar na academia para executar meus treinos. se voce olhar o arquivo moc.txt vai ver um exemblo bem simplrio hardcode on o usuario acessa uma lista de treinos e executa. ali ele pode fazer varias coisas como:Exercise Display:
+
+Shows both exercises (Chest Fly and Pull Ups)
+When "Start Workout" is clicked, it expands the first exercise and fades the second
+Each exercise displays an image, detailed explanation, reps, sets, and weight in lbs
+
+
+Timer Functionality:
+
+A floating circular timer appears when the user completes a set
+Timer starts automatically with a default rest time of 1:30
+"Speed up" button (left side) decreases time by 15 seconds
+"Slow down" button (right side) increases time by 15 seconds
+"Edit Time" button opens a modal for custom time settings
+
+
+Exercise Parameter Editing:
+
+Added the ability to edit reps, sets, and weight for each exercise
+Users can click on any of these parameters or the "Edit Exercise" button to open the edit modal
+Changes are saved to the exercise data and immediately reflected in the UI
+
+
+Skip Timer Functionality:
+
+Made the timer digits clickable to skip the rest period
+Added an explicit "Skip" button at the bottom of the timer
+Skipping immediately advances to the next set or exercise
+
+
+UI Improvements:
+
+Added visual hints (hover effects) to show that the exercise parameters are editable
+Maintained the clean, intuitive design that works well on both web and mobile
+Ensured all interactive elements have clear visual feedback
+
+After each rest period, the next set automatically becomes active
+When all sets of an exercise are completed, it transitions to the next exercise
+The completed exercise fades out while the new one fades in. veja que nao eh um exemplo exato. primeiro quero que voce analise o documento notion-schema para enteder as tabelas , ai voce vai ver que precisamos:
+import React, { useState, useEffect } from 'react';
+import { Timer, X, ChevronUp, ChevronDown, Edit2, SkipForward } from 'lucide-react';
+
+const WorkoutApp = () => {
+  // Exercise data
+  const initialExercises = [
+    {
+      id: 1,
+      name: "Chest Fly",
+      image: "/api/placeholder/400/300",
+      explanation: "Lie on a bench with a dumbbell in each hand. Start with arms extended above your chest, then lower the weights out to the sides in an arc motion until you feel a stretch in your chest. Bring the weights back up in the same arc motion.",
+      sets: 3,
+      reps: 12,
+      weight: 25
+    },
+    {
+      id: 2,
+      name: "Pull Ups",
+      image: "/api/placeholder/400/300",
+      explanation: "Hang from a pull-up bar with palms facing away from you and hands slightly wider than shoulder-width apart. Pull your body up until your chin clears the bar, then lower yourself back down with control.",
+      sets: 4,
+      reps: 8,
+      weight: 0
+    }
+  ];
+
+  // App state
+  const [exercises, setExercises] = useState(initialExercises);
+  const [currentExercise, setCurrentExercise] = useState(null);
+  const [currentSet, setCurrentSet] = useState(1);
+  const [showTimer, setShowTimer] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(90); // 1:30 default rest time
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [showTimeEdit, setShowTimeEdit] = useState(false);
+  const [showExerciseEdit, setShowExerciseEdit] = useState(false);
+  const [minutes, setMinutes] = useState(1);
+  const [seconds, setSeconds] = useState(30);
+  const [editingExercise, setEditingExercise] = useState(null);
+
+  // Start workout
+  const startWorkout = () => {
+    setCurrentExercise(exercises[0]);
+    setCurrentSet(1);
+  };
+
+  // Complete a set
+  const completeSet = () => {
+    setShowTimer(true);
+    setTimerRunning(true);
+    setTimeRemaining(minutes * 60 + seconds);
+  };
+
+  // Skip timer
+  const skipTimer = () => {
+    setTimerRunning(false);
+    setShowTimer(false);
+    
+    // Move to next set or exercise
+    handleTimerComplete();
+  };
+
+  // Handle timer completion
+  const handleTimerComplete = () => {
+    if (currentSet < currentExercise.sets) {
+      setCurrentSet(prev => prev + 1);
+    } else {
+      // Move to next exercise or finish workout
+      if (currentExercise.id < exercises.length) {
+        setCurrentExercise(exercises.find(ex => ex.id === currentExercise.id + 1));
+        setCurrentSet(1);
+      } else {
+        // Workout complete
+        setCurrentExercise(null);
+      }
+    }
+  };
+
+  // Timer functionality
+  useEffect(() => {
+    let interval;
+    if (timerRunning && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining(prev => prev - 1);
+      }, 1000);
+    } else if (timerRunning && timeRemaining === 0) {
+      // Timer completed
+      setTimerRunning(false);
+      setShowTimer(false);
+      
+      // Move to next set or exercise
+      handleTimerComplete();
+    }
+    
+    return () => clearInterval(interval);
+  }, [timerRunning, timeRemaining, currentSet, currentExercise]);
+
+  // Format time as MM:SS
+  const formatTime = (totalSeconds) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Adjust timer
+  const speedUpTimer = () => {
+    setTimeRemaining(prev => Math.max(0, prev - 15));
+  };
+
+  const slowDownTimer = () => {
+    setTimeRemaining(prev => prev + 15);
+  };
+
+  // Save custom time
+  const saveCustomTime = () => {
+    const newTime = minutes * 60 + seconds;
+    setTimeRemaining(newTime);
+    setShowTimeEdit(false);
+  };
+
+  // Edit exercise
+  const openExerciseEdit = (exercise) => {
+    setEditingExercise({...exercise});
+    setShowExerciseEdit(true);
+  };
+
+  // Save exercise edits
+  const saveExerciseEdits = () => {
+    setExercises(prevExercises => 
+      prevExercises.map(ex => 
+        ex.id === editingExercise.id ? editingExercise : ex
+      )
+    );
+    
+    // Update current exercise if it's the one being edited
+    if (currentExercise && currentExercise.id === editingExercise.id) {
+      setCurrentExercise(editingExercise);
+    }
+    
+    setShowExerciseEdit(false);
+  };
+
+  return (
+    <div className="bg-gray-100 min-h-screen p-4 font-sans">
+      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-4 bg-blue-600 text-white">
+          <h1 className="text-xl font-bold text-center">Workout Timer</h1>
+        </div>
+
+        {!currentExercise ? (
+          <div className="p-6 text-center">
+            <h2 className="text-lg font-semibold mb-4">Ready to start your workout?</h2>
+            <p className="mb-6 text-gray-600">You have 2 exercises today: Chest Fly and Pull Ups</p>
+            <button 
+              onClick={startWorkout}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              Start Workout
+            </button>
+          </div>
+        ) : (
+          <div className="p-4">
+            {/* Exercise cards with fade effect */}
+            <div className="space-y-4">
+              {exercises.map(exercise => (
+                <div 
+                  key={exercise.id}
+                  className={`transition-all duration-500 overflow-hidden rounded-lg border ${
+                    currentExercise.id === exercise.id 
+                      ? 'border-blue-500 shadow-md' 
+                      : 'border-gray-200 opacity-50 max-h-20'
+                  }`}
+                >
+                  <div className="p-4">
+                    <div className="flex justify-between items-center">
+                      <h2 className="font-bold text-lg">{exercise.name}</h2>
+                      {currentExercise.id === exercise.id && currentSet <= currentExercise.sets && (
+                        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                          Set {currentSet}/{exercise.sets}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {currentExercise.id === exercise.id && (
+                      <div className="mt-4 space-y-4">
+                        <img 
+                          src={exercise.image} 
+                          alt={exercise.name} 
+                          className="w-full h-48 object-cover rounded-md"
+                        />
+                        <p className="text-gray-700">{exercise.explanation}</p>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div 
+                            className="bg-gray-100 p-2 rounded-md cursor-pointer hover:bg-gray-200 transition-colors"
+                            onClick={() => openExerciseEdit(exercise)}
+                          >
+                            <p className="text-xs text-gray-500">REPS</p>
+                            <p className="font-bold">{exercise.reps}</p>
+                          </div>
+                          <div 
+                            className="bg-gray-100 p-2 rounded-md cursor-pointer hover:bg-gray-200 transition-colors"
+                            onClick={() => openExerciseEdit(exercise)}
+                          >
+                            <p className="text-xs text-gray-500">SETS</p>
+                            <p className="font-bold">{exercise.sets}</p>
+                          </div>
+                          <div 
+                            className="bg-gray-100 p-2 rounded-md cursor-pointer hover:bg-gray-200 transition-colors"
+                            onClick={() => openExerciseEdit(exercise)}
+                          >
+                            <p className="text-xs text-gray-500">WEIGHT</p>
+                            <p className="font-bold">{exercise.weight} lbs</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <button
+                            onClick={() => openExerciseEdit(exercise)}
+                            className="text-blue-600 flex items-center text-sm"
+                          >
+                            <Edit2 size={16} className="mr-1" /> Edit Exercise
+                          </button>
+                          
+                          {!showTimer && (
+                            <button
+                              onClick={completeSet}
+                              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                            >
+                              Set Complete
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Floating timer */}
+            {showTimer && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                <div className="bg-white rounded-full h-64 w-64 flex flex-col items-center justify-center shadow-lg relative">
+                  <div className="absolute top-4 left-4">
+                    <button 
+                      onClick={speedUpTimer}
+                      className="bg-blue-100 p-2 rounded-full hover:bg-blue-200 transition-colors"
+                    >
+                      <ChevronUp size={20} />
+                    </button>
+                  </div>
+                  
+                  <div className="absolute top-4 right-4">
+                    <button 
+                      onClick={slowDownTimer}
+                      className="bg-blue-100 p-2 rounded-full hover:bg-blue-200 transition-colors"
+                    >
+                      <ChevronDown size={20} />
+                    </button>
+                  </div>
+                  
+                  <Timer size={28} className="text-blue-600 mb-2" />
+                  
+                  {/* Click on timer to skip */}
+                  <button 
+                    onClick={skipTimer}
+                    className="text-3xl font-bold mb-2 hover:text-blue-600 transition-colors"
+                  >
+                    {formatTime(timeRemaining)}
+                  </button>
+                  
+                  <div className="flex items-center space-x-4">
+                    <button 
+                      onClick={() => setShowTimeEdit(true)}
+                      className="flex items-center text-blue-600 text-sm"
+                    >
+                      <Edit2 size={14} className="mr-1" /> Edit
+                    </button>
+                    
+                    <button 
+                      onClick={skipTimer}
+                      className="flex items-center text-blue-600 text-sm"
+                    >
+                      <SkipForward size={14} className="mr-1" /> Skip
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Time edit modal */}
+            {showTimeEdit && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-lg p-6 w-72 shadow-xl">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold">Edit Rest Time</h3>
+                    <button onClick={() => setShowTimeEdit(false)}>
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm text-gray-600 mb-1">Minutes</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={minutes}
+                      onChange={(e) => setMinutes(parseInt(e.target.value) || 0)}
+                      className="w-full border rounded-md p-2"
+                    />
+                  </div>
+                  
+                  <div className="mb-6">
+                    <label className="block text-sm text-gray-600 mb-1">Seconds</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      value={seconds}
+                      onChange={(e) => setSeconds(parseInt(e.target.value) || 0)}
+                      className="w-full border rounded-md p-2"
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={saveCustomTime}
+                    className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Exercise edit modal */}
+            {showExerciseEdit && editingExercise && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold">Edit {editingExercise.name}</h3>
+                    <button onClick={() => setShowExerciseEdit(false)}>
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm text-gray-600 mb-1">Reps</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={editingExercise.reps}
+                      onChange={(e) => setEditingExercise({...editingExercise, reps: parseInt(e.target.value) || 1})}
+                      className="w-full border rounded-md p-2"
+                    />
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm text-gray-600 mb-1">Sets</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={editingExercise.sets}
+                      onChange={(e) => setEditingExercise({...editingExercise, sets: parseInt(e.target.value) || 1})}
+                      className="w-full border rounded-md p-2"
+                    />
+                  </div>
+                  
+                  <div className="mb-6">
+                    <label className="block text-sm text-gray-600 mb-1">Weight (lbs)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="1000"
+                      value={editingExercise.weight}
+                      onChange={(e) => setEditingExercise({...editingExercise, weight: parseInt(e.target.value) || 0})}
+                      className="w-full border rounded-md p-2"
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={saveExerciseEdits}
+                    className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default WorkoutApp; 
