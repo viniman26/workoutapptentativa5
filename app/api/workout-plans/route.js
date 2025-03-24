@@ -3,42 +3,43 @@ import { Client } from "@notionhq/client";
 
 export async function GET() {
   if (!process.env.NOTION_TOKEN) {
-    console.error("Missing Notion token");
     return NextResponse.json(
       { error: "Server configuration error" },
       { status: 500 }
     );
   }
 
-  const notion = new Client({
-    auth: process.env.NOTION_TOKEN,
-  });
-
   try {
-    // Primeiro, vamos buscar o conteúdo da página principal
-    const pageId = "1affbbda67908049b486ce02533dd7f0";
-    const response = await notion.blocks.children.list({
-      block_id: pageId,
+    const notion = new Client({
+      auth: process.env.NOTION_TOKEN,
     });
 
-    // Encontrar o banco de dados Workout Plans
-    const workoutPlansBlock = response.results.find(
+    // First, get the main page content
+    const mainPage = await notion.pages.retrieve({
+      page_id: process.env.NOTION_PAGE_ID,
+    });
+
+    // Find the Workout Plans database
+    const children = await notion.blocks.children.list({
+      block_id: mainPage.id,
+    });
+
+    const workoutPlansDatabase = children.results.find(
       (block) =>
         block.type === "child_database" &&
-        block.child_database.title.toLowerCase().includes("workout plan")
+        block.child_database.title === "Workout Plans"
     );
 
-    if (!workoutPlansBlock) {
-      console.error("Workout Plans database not found");
+    if (!workoutPlansDatabase) {
       return NextResponse.json(
-        { error: "Database not found" },
+        { error: "Workout Plans database not found" },
         { status: 404 }
       );
     }
 
-    // Consultar o banco de dados encontrado
-    const dbResponse = await notion.databases.query({
-      database_id: workoutPlansBlock.id,
+    // Query the database
+    const response = await notion.databases.query({
+      database_id: workoutPlansDatabase.id,
       sorts: [
         {
           property: "Name",
@@ -47,17 +48,17 @@ export async function GET() {
       ],
     });
 
-    const workoutPlans = dbResponse.results.map((page) => ({
+    const workoutPlans = response.results.map((page) => ({
       id: page.id,
-      name: page.properties.Name?.title[0]?.plain_text || "Unnamed",
+      name: page.properties.Name.title[0].plain_text,
       macrocycle: page.properties.Macrocycle?.relation[0]?.id || null,
     }));
 
     return NextResponse.json(workoutPlans);
   } catch (error) {
-    console.error("Error fetching from Notion:", error);
+    console.error("Error fetching workout plans:", error);
     return NextResponse.json(
-      { error: "Failed to fetch data from Notion: " + error.message },
+      { error: "Failed to fetch workout plans: " + error.message },
       { status: 500 }
     );
   }
@@ -82,28 +83,34 @@ export async function POST(request) {
       auth: process.env.NOTION_TOKEN,
     });
 
-    // Encontrar o banco de dados Workout Plans
-    const pageId = "1affbbda67908049b486ce02533dd7f0";
-    const response = await notion.blocks.children.list({
-      block_id: pageId,
+    // First, get the main page content
+    const mainPage = await notion.pages.retrieve({
+      page_id: process.env.NOTION_PAGE_ID,
     });
 
-    const workoutPlansBlock = response.results.find(
+    // Find the Workout Plans database
+    const children = await notion.blocks.children.list({
+      block_id: mainPage.id,
+    });
+
+    const workoutPlansDatabase = children.results.find(
       (block) =>
         block.type === "child_database" &&
-        block.child_database.title.toLowerCase().includes("workout plan")
+        block.child_database.title === "Workout Plans"
     );
 
-    if (!workoutPlansBlock) {
+    if (!workoutPlansDatabase) {
       return NextResponse.json(
-        { error: "Database not found" },
+        { error: "Workout Plans database not found" },
         { status: 404 }
       );
     }
 
-    // Criar novo Workout Plan
+    // Create the new page
     const newPage = await notion.pages.create({
-      parent: { database_id: workoutPlansBlock.id },
+      parent: {
+        database_id: workoutPlansDatabase.id,
+      },
       properties: {
         Name: {
           title: [

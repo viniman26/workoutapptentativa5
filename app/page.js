@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 export default function Home() {
   const [workoutPlans, setWorkoutPlans] = useState([]);
+  const [macrocycles, setMacrocycles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -11,10 +12,26 @@ export default function Home() {
   const [newPlanName, setNewPlanName] = useState("");
   const [editingPlan, setEditingPlan] = useState(null);
   const [editPlanName, setEditPlanName] = useState("");
+  const [selectedMacrocycle, setSelectedMacrocycle] = useState("");
+  const [editSelectedMacrocycle, setEditSelectedMacrocycle] = useState("");
 
   useEffect(() => {
     fetchWorkoutPlans();
+    fetchMacrocycles();
   }, []);
+
+  async function fetchMacrocycles() {
+    try {
+      const response = await fetch("/api/macrocycles");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setMacrocycles(data);
+    } catch (error) {
+      console.error("Error fetching macrocycles:", error);
+    }
+  }
 
   async function fetchWorkoutPlans() {
     try {
@@ -41,7 +58,10 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: newPlanName }),
+        body: JSON.stringify({
+          name: newPlanName,
+          macrocycleId: selectedMacrocycle || null,
+        }),
       });
 
       if (!response.ok) {
@@ -51,6 +71,7 @@ export default function Home() {
       const newPlan = await response.json();
       setWorkoutPlans([...workoutPlans, newPlan]);
       setNewPlanName("");
+      setSelectedMacrocycle("");
       setShowCreateModal(false);
     } catch (error) {
       console.error("Error creating workout plan:", error);
@@ -69,6 +90,7 @@ export default function Home() {
         body: JSON.stringify({
           id: editingPlan.id,
           name: editPlanName,
+          macrocycleId: editSelectedMacrocycle || null,
         }),
       });
 
@@ -85,6 +107,7 @@ export default function Home() {
       setShowEditModal(false);
       setEditingPlan(null);
       setEditPlanName("");
+      setEditSelectedMacrocycle("");
     } catch (error) {
       console.error("Error updating workout plan:", error);
       setError("Failed to update workout plan. Please try again.");
@@ -115,6 +138,7 @@ export default function Home() {
   function openEditModal(plan) {
     setEditingPlan(plan);
     setEditPlanName(plan.name);
+    setEditSelectedMacrocycle(plan.macrocycle || "");
     setShowEditModal(true);
   }
 
@@ -122,7 +146,7 @@ export default function Home() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "#6B46C1",
         padding: "20px",
       }}
     >
@@ -215,18 +239,30 @@ export default function Home() {
                     alignItems: "center",
                   }}
                 >
-                  <h2
-                    style={{
-                      margin: "0",
-                      fontSize: "18px",
-                      fontWeight: "500",
-                      color: "#2c3e50",
-                      flex: 1,
-                    }}
-                    onClick={() => console.log("Navigate to plan:", plan.id)}
-                  >
-                    {plan.name}
-                  </h2>
+                  <div style={{ flex: 1 }}>
+                    <h2
+                      style={{
+                        margin: "0",
+                        fontSize: "18px",
+                        fontWeight: "500",
+                        color: "#2c3e50",
+                      }}
+                      onClick={() => console.log("Navigate to plan:", plan.id)}
+                    >
+                      {plan.name}
+                    </h2>
+                    {plan.macrocycle && (
+                      <p
+                        style={{
+                          margin: "4px 0 0",
+                          fontSize: "14px",
+                          color: "#666",
+                        }}
+                      >
+                        Macrocycle: {plan.macrocycle}
+                      </p>
+                    )}
+                  </div>
                   <div
                     style={{
                       display: "flex",
@@ -316,6 +352,26 @@ export default function Home() {
                 }}
                 required
               />
+              <select
+                value={selectedMacrocycle}
+                onChange={(e) => setSelectedMacrocycle(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  marginBottom: "16px",
+                  fontSize: "16px",
+                  backgroundColor: "white",
+                }}
+              >
+                <option value="">Select a macrocycle (optional)</option>
+                {macrocycles.map((macrocycle) => (
+                  <option key={macrocycle.id} value={macrocycle.id}>
+                    {macrocycle.name}
+                  </option>
+                ))}
+              </select>
               <div
                 style={{
                   display: "flex",
@@ -404,6 +460,26 @@ export default function Home() {
                 }}
                 required
               />
+              <select
+                value={editSelectedMacrocycle}
+                onChange={(e) => setEditSelectedMacrocycle(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  marginBottom: "16px",
+                  fontSize: "16px",
+                  backgroundColor: "white",
+                }}
+              >
+                <option value="">Select a macrocycle (optional)</option>
+                {macrocycles.map((macrocycle) => (
+                  <option key={macrocycle.id} value={macrocycle.id}>
+                    {macrocycle.name}
+                  </option>
+                ))}
+              </select>
               <div
                 style={{
                   display: "flex",
@@ -417,6 +493,7 @@ export default function Home() {
                     setShowEditModal(false);
                     setEditingPlan(null);
                     setEditPlanName("");
+                    setEditSelectedMacrocycle("");
                   }}
                   style={{
                     padding: "8px 16px",
