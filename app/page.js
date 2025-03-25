@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "./context/AuthContext";
 import BottomNavigation from "./components/BottomNavigation";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 
 export default function Home() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [workoutPlans, setWorkoutPlans] = useState([]);
   const [macrocycles, setMacrocycles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,9 +22,13 @@ export default function Home() {
   const [editSelectedMacrocycle, setEditSelectedMacrocycle] = useState("");
 
   useEffect(() => {
-    fetchWorkoutPlans();
-    fetchMacrocycles();
-  }, []);
+    if (!user) {
+      router.replace("/login");
+    } else {
+      fetchWorkoutPlans();
+      fetchMacrocycles();
+    }
+  }, [user, router]);
 
   async function fetchMacrocycles() {
     try {

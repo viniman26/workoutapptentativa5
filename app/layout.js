@@ -1,3 +1,5 @@
+import { AuthProvider } from "./context/AuthContext";
+
 export const metadata = {
   title: "Gym Workout App",
   description: "Workout Management Application",
@@ -28,7 +30,7 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body style={{ margin: 0, WebkitTapHighlightColor: "transparent" }}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
