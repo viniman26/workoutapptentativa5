@@ -23,15 +23,25 @@ export async function POST(request) {
       auth: process.env.NOTION_TOKEN,
     });
 
-    console.log("API: Buscando banco de dados...");
-    // Get the Users database directly using the database ID
-    const usersDatabase = await notion.databases.retrieve({
-      database_id: process.env.NOTION_DATABASE_ID,
+    console.log("API: Buscando página principal...");
+    const mainPage = await notion.pages.retrieve({
+      page_id: process.env.NOTION_PAGE_ID,
     });
-    console.log("API: Banco de dados encontrado:", usersDatabase.id);
+    console.log("API: Página principal encontrada:", mainPage.id);
+
+    console.log("API: Buscando tabela Users...");
+    const children = await notion.blocks.children.list({
+      block_id: mainPage.id,
+    });
+
+    const usersDatabase = children.results.find(
+      (block) =>
+        block.type === "child_database" &&
+        block.child_database.title === "Users"
+    );
 
     if (!usersDatabase) {
-      console.error("API: Banco de dados não encontrado");
+      console.error("API: Tabela Users não encontrada");
       return NextResponse.json(
         { error: "Users database not found" },
         { status: 404 }
