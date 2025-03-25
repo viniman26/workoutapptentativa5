@@ -17,12 +17,27 @@ const handler = NextAuth({
     async signIn({ user, account }) {
       if (account.provider === "google") {
         try {
+          console.log("NextAuth: Iniciando processo de signIn...");
+
+          if (!process.env.NOTION_TOKEN) {
+            console.error("NextAuth: NOTION_TOKEN não configurado");
+            return false;
+          }
+
+          if (!process.env.NOTION_PAGE_ID) {
+            console.error("NextAuth: NOTION_PAGE_ID não configurado");
+            return false;
+          }
+
           // First, get the main page content
+          console.log("NextAuth: Buscando página principal...");
           const mainPage = await notion.pages.retrieve({
             page_id: process.env.NOTION_PAGE_ID,
           });
+          console.log("NextAuth: Página principal encontrada:", mainPage.id);
 
           // Find the Users database
+          console.log("NextAuth: Buscando tabela Users...");
           const children = await notion.blocks.children.list({
             block_id: mainPage.id,
           });
@@ -34,11 +49,13 @@ const handler = NextAuth({
           );
 
           if (!usersDatabase) {
-            console.error("Users database not found");
+            console.error("NextAuth: Tabela Users não encontrada");
             return false;
           }
+          console.log("NextAuth: Tabela Users encontrada:", usersDatabase.id);
 
           // Check if user already exists
+          console.log("NextAuth: Verificando se usuário já existe...");
           const existingUsers = await notion.databases.query({
             database_id: usersDatabase.id,
             filter: {
@@ -50,8 +67,9 @@ const handler = NextAuth({
           });
 
           if (existingUsers.results.length === 0) {
+            console.log("NextAuth: Usuário não encontrado, criando novo...");
             // Create new user
-            await notion.pages.create({
+            const newUser = await notion.pages.create({
               parent: {
                 database_id: usersDatabase.id,
               },
@@ -83,11 +101,24 @@ const handler = NextAuth({
                 },
               },
             });
+            console.log(
+              "NextAuth: Novo usuário criado com sucesso:",
+              newUser.id
+            );
+          } else {
+            console.log(
+              "NextAuth: Usuário já existe:",
+              existingUsers.results[0].id
+            );
           }
 
           return true;
         } catch (error) {
-          console.error("Error in signIn callback:", error);
+          console.error("NextAuth: Erro detalhado no signIn:", {
+            message: error.message,
+            code: error.code,
+            stack: error.stack,
+          });
           return false;
         }
       }
