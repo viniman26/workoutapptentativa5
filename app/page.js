@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import BottomNavigation from "./components/BottomNavigation";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 
 export default function Home() {
   const [workoutPlans, setWorkoutPlans] = useState([]);
@@ -135,25 +137,24 @@ export default function Home() {
     }
   }
 
-  function openEditModal(plan) {
-    setEditingPlan(plan);
-    setEditPlanName(plan.name);
-    setEditSelectedMacrocycle(plan.macrocycle || "");
-    setShowEditModal(true);
-  }
-
   return (
     <div
       style={{
+        maxWidth: "100%",
         minHeight: "100vh",
-        backgroundColor: "#6B46C1",
-        padding: "20px",
+        backgroundColor: "#f5f5f5",
+        paddingBottom: "80px", // Space for bottom navigation
       }}
     >
-      <div
+      {/* Header */}
+      <header
         style={{
-          maxWidth: "390px",
-          margin: "0 auto",
+          backgroundColor: "#6B46C1",
+          padding: "16px",
+          color: "white",
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
         }}
       >
         <div
@@ -161,75 +162,85 @@ export default function Home() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "20px",
+            maxWidth: "800px",
+            margin: "0 auto",
           }}
         >
-          <h1
-            style={{
-              fontSize: "24px",
-              color: "#333",
-              margin: 0,
-              fontWeight: "600",
-            }}
-          >
-            Workout Plans
-          </h1>
+          <h1 style={{ margin: 0, fontSize: "24px" }}>My Workouts</h1>
           <button
             onClick={() => setShowCreateModal(true)}
             style={{
-              backgroundColor: "#007AFF",
-              color: "white",
+              backgroundColor: "white",
+              color: "#6B46C1",
               border: "none",
-              padding: "8px 16px",
-              borderRadius: "8px",
-              fontSize: "14px",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               cursor: "pointer",
-              fontWeight: "500",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             }}
           >
-            Create Plan
+            <Plus size={24} />
           </button>
         </div>
+      </header>
 
+      {/* Main Content */}
+      <main
+        style={{
+          maxWidth: "800px",
+          margin: "16px auto",
+          padding: "0 16px",
+        }}
+      >
         {loading ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "20px",
-              color: "#666",
-            }}
-          >
-            Loading...
-          </div>
+          <div style={{ textAlign: "center", padding: "20px" }}>Loading...</div>
         ) : error ? (
+          <div style={{ color: "red", textAlign: "center", padding: "20px" }}>
+            {error}
+          </div>
+        ) : workoutPlans.length === 0 ? (
           <div
             style={{
               textAlign: "center",
-              padding: "20px",
-              color: "#dc3545",
-              backgroundColor: "#fff",
-              borderRadius: "8px",
-              margin: "20px 0",
+              padding: "40px 20px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             }}
           >
-            {error}
+            <p style={{ color: "#666", marginBottom: "16px" }}>
+              No workout plans yet
+            </p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              style={{
+                backgroundColor: "#6B46C1",
+                color: "white",
+                border: "none",
+                padding: "12px 24px",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+            >
+              Create your first plan
+            </button>
           </div>
         ) : (
           <div
-            style={{
-              display: "grid",
-              gap: "12px",
-            }}
+            style={{ display: "flex", flexDirection: "column", gap: "12px" }}
           >
             {workoutPlans.map((plan) => (
               <div
                 key={plan.id}
                 style={{
                   backgroundColor: "white",
-                  padding: "16px",
                   borderRadius: "12px",
+                  padding: "16px",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  border: "1px solid rgba(0,0,0,0.05)",
                 }}
               >
                 <div
@@ -247,7 +258,6 @@ export default function Home() {
                         fontWeight: "500",
                         color: "#2c3e50",
                       }}
-                      onClick={() => console.log("Navigate to plan:", plan.id)}
                     >
                       {plan.name}
                     </h2>
@@ -259,7 +269,9 @@ export default function Home() {
                           color: "#666",
                         }}
                       >
-                        Macrocycle: {plan.macrocycle}
+                        Macrocycle:{" "}
+                        {macrocycles.find((m) => m.id === plan.macrocycle)
+                          ?.name || plan.macrocycle}
                       </p>
                     )}
                   </div>
@@ -270,30 +282,33 @@ export default function Home() {
                     }}
                   >
                     <button
-                      onClick={() => openEditModal(plan)}
+                      onClick={() => {
+                        setEditingPlan(plan);
+                        setEditPlanName(plan.name);
+                        setEditSelectedMacrocycle(plan.macrocycle || "");
+                        setShowEditModal(true);
+                      }}
                       style={{
                         backgroundColor: "transparent",
                         border: "none",
-                        color: "#007AFF",
-                        padding: "4px 8px",
+                        padding: "8px",
                         cursor: "pointer",
-                        fontSize: "14px",
+                        color: "#666",
                       }}
                     >
-                      Edit
+                      <Edit2 size={20} />
                     </button>
                     <button
                       onClick={() => handleDeletePlan(plan.id)}
                       style={{
                         backgroundColor: "transparent",
                         border: "none",
-                        color: "#dc3545",
-                        padding: "4px 8px",
+                        padding: "8px",
                         cursor: "pointer",
-                        fontSize: "14px",
+                        color: "#666",
                       }}
                     >
-                      Delete
+                      <Trash2 size={20} />
                     </button>
                   </div>
                 </div>
@@ -301,8 +316,9 @@ export default function Home() {
             ))}
           </div>
         )}
-      </div>
+      </main>
 
+      {/* Create Modal */}
       {showCreateModal && (
         <div
           style={{
@@ -321,21 +337,13 @@ export default function Home() {
           <div
             style={{
               backgroundColor: "white",
-              padding: "24px",
               borderRadius: "12px",
+              padding: "24px",
               width: "90%",
-              maxWidth: "390px",
+              maxWidth: "400px",
             }}
           >
-            <h2
-              style={{
-                margin: "0 0 16px",
-                fontSize: "20px",
-                color: "#333",
-              }}
-            >
-              Create New Workout Plan
-            </h2>
+            <h2 style={{ margin: "0 0 16px" }}>Create New Plan</h2>
             <form onSubmit={handleCreatePlan}>
               <input
                 type="text"
@@ -381,9 +389,13 @@ export default function Home() {
               >
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setNewPlanName("");
+                    setSelectedMacrocycle("");
+                  }}
                   style={{
-                    padding: "8px 16px",
+                    padding: "12px 24px",
                     borderRadius: "8px",
                     border: "1px solid #ddd",
                     backgroundColor: "white",
@@ -395,10 +407,10 @@ export default function Home() {
                 <button
                   type="submit"
                   style={{
-                    padding: "8px 16px",
+                    padding: "12px 24px",
                     borderRadius: "8px",
                     border: "none",
-                    backgroundColor: "#007AFF",
+                    backgroundColor: "#6B46C1",
                     color: "white",
                     cursor: "pointer",
                   }}
@@ -411,6 +423,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* Edit Modal */}
       {showEditModal && (
         <div
           style={{
@@ -429,21 +442,13 @@ export default function Home() {
           <div
             style={{
               backgroundColor: "white",
-              padding: "24px",
               borderRadius: "12px",
+              padding: "24px",
               width: "90%",
-              maxWidth: "390px",
+              maxWidth: "400px",
             }}
           >
-            <h2
-              style={{
-                margin: "0 0 16px",
-                fontSize: "20px",
-                color: "#333",
-              }}
-            >
-              Edit Workout Plan
-            </h2>
+            <h2 style={{ margin: "0 0 16px" }}>Edit Plan</h2>
             <form onSubmit={handleEditPlan}>
               <input
                 type="text"
@@ -496,7 +501,7 @@ export default function Home() {
                     setEditSelectedMacrocycle("");
                   }}
                   style={{
-                    padding: "8px 16px",
+                    padding: "12px 24px",
                     borderRadius: "8px",
                     border: "1px solid #ddd",
                     backgroundColor: "white",
@@ -508,10 +513,10 @@ export default function Home() {
                 <button
                   type="submit"
                   style={{
-                    padding: "8px 16px",
+                    padding: "12px 24px",
                     borderRadius: "8px",
                     border: "none",
-                    backgroundColor: "#007AFF",
+                    backgroundColor: "#6B46C1",
                     color: "white",
                     cursor: "pointer",
                   }}
@@ -523,6 +528,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <BottomNavigation />
     </div>
   );
 }
