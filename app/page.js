@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./context/AuthContext";
 import BottomNavigation from "./components/BottomNavigation";
+import Header from "./components/Header";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 
 export default function Home() {
@@ -148,60 +149,18 @@ export default function Home() {
   return (
     <div
       style={{
-        maxWidth: "100%",
         minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-        paddingBottom: "80px", // Space for bottom navigation
+        backgroundColor: "#f7fafc",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      {/* Header */}
-      <header
-        style={{
-          backgroundColor: "#6B46C1",
-          padding: "16px",
-          color: "white",
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            maxWidth: "800px",
-            margin: "0 auto",
-          }}
-        >
-          <h1 style={{ margin: 0, fontSize: "24px" }}>My Workouts</h1>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            style={{
-              backgroundColor: "white",
-              color: "#6B46C1",
-              border: "none",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-            }}
-          >
-            <Plus size={24} />
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content */}
+      <Header />
       <main
         style={{
-          maxWidth: "800px",
-          margin: "16px auto",
-          padding: "0 16px",
+          flex: 1,
+          padding: "20px",
+          paddingBottom: "80px", // Espaço para a navegação inferior
         }}
       >
         {loading ? (
@@ -325,218 +284,6 @@ export default function Home() {
           </div>
         )}
       </main>
-
-      {/* Create Modal */}
-      {showCreateModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
-              padding: "24px",
-              width: "90%",
-              maxWidth: "400px",
-            }}
-          >
-            <h2 style={{ margin: "0 0 16px" }}>Create New Plan</h2>
-            <form onSubmit={handleCreatePlan}>
-              <input
-                type="text"
-                value={newPlanName}
-                onChange={(e) => setNewPlanName(e.target.value)}
-                placeholder="Enter plan name"
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  marginBottom: "16px",
-                  fontSize: "16px",
-                }}
-                required
-              />
-              <select
-                value={selectedMacrocycle}
-                onChange={(e) => setSelectedMacrocycle(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  marginBottom: "16px",
-                  fontSize: "16px",
-                  backgroundColor: "white",
-                }}
-              >
-                <option value="">Select a macrocycle (optional)</option>
-                {macrocycles.map((macrocycle) => (
-                  <option key={macrocycle.id} value={macrocycle.id}>
-                    {macrocycle.name}
-                  </option>
-                ))}
-              </select>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "12px",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setNewPlanName("");
-                    setSelectedMacrocycle("");
-                  }}
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    border: "1px solid #ddd",
-                    backgroundColor: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    border: "none",
-                    backgroundColor: "#6B46C1",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Create
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      {showEditModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
-              padding: "24px",
-              width: "90%",
-              maxWidth: "400px",
-            }}
-          >
-            <h2 style={{ margin: "0 0 16px" }}>Edit Plan</h2>
-            <form onSubmit={handleEditPlan}>
-              <input
-                type="text"
-                value={editPlanName}
-                onChange={(e) => setEditPlanName(e.target.value)}
-                placeholder="Enter plan name"
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  marginBottom: "16px",
-                  fontSize: "16px",
-                }}
-                required
-              />
-              <select
-                value={editSelectedMacrocycle}
-                onChange={(e) => setEditSelectedMacrocycle(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  marginBottom: "16px",
-                  fontSize: "16px",
-                  backgroundColor: "white",
-                }}
-              >
-                <option value="">Select a macrocycle (optional)</option>
-                {macrocycles.map((macrocycle) => (
-                  <option key={macrocycle.id} value={macrocycle.id}>
-                    {macrocycle.name}
-                  </option>
-                ))}
-              </select>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "12px",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEditModal(false);
-                    setEditingPlan(null);
-                    setEditPlanName("");
-                    setEditSelectedMacrocycle("");
-                  }}
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    border: "1px solid #ddd",
-                    backgroundColor: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    border: "none",
-                    backgroundColor: "#6B46C1",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       <BottomNavigation />
     </div>
   );
