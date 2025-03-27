@@ -1,5 +1,4 @@
 {
-  // Version that works with Firebase auth
   "name": "hello-world-mobile",
   "version": "0.1.1",
   "private": true,
