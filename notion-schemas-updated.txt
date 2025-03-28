@@ -1,0 +1,346 @@
+NOTION DATABASE STRUCTURES UPDATED
+
+=== Users ===
+Database ID: 1affbbda-6790-80b3-a04f-dda57607087f
+
+Fields:
+
+- Training Experience
+  Type: select
+  Options: {
+  "options": [
+    "Beginner",
+    "Intermediate",
+    "Advanced"
+  ]
+}
+
+- Email
+  Type: email
+
+- Available Time(Minutes per day)
+  Type: number
+
+- Fitness Goal
+  Type: select
+  Options: {
+  "options": [
+    "Hypertrophy",
+    "Strength"
+  ]
+}
+
+- Name
+  Type: title
+
+
+
+=== Muscle Groups ===
+Database ID: 1affbbda-6790-8091-99aa-c1631aa6987a
+
+Fields:
+
+- Recovery Time
+  Type: number
+
+- Name
+  Type: title
+
+
+
+=== Exercises ===
+Database ID: 1affbbda-6790-8020-bf5c-da3d6beb454b
+
+Fields:
+
+- Type
+  Type: select
+  Options: {
+  "options": [
+    "Isolation",
+    "Compound"
+  ]
+}
+
+- id
+  Type: number
+
+- Image Path
+  Type: rich_text
+
+- Equipment
+  Type: select
+  Options: {
+  "options": [
+    "Bodyweight",
+    "Machine",
+    "Cable",
+    "Dumbbell",
+    "Barbell"
+  ]
+}
+
+- Intensity Level
+  Type: number
+
+- Name
+  Type: title
+
+
+
+=== Exercise Muscle Mapping ===
+Database ID: 1affbbda-6790-80db-93ff-e974f4a1422b
+
+Fields:
+
+- Is Primary
+  Type: select
+  Options: {
+  "options": [
+    "true",
+    "false",
+    "false ",
+    "true "
+  ]
+}
+
+- Contribution 
+  Type: number
+
+- Exercise
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8020-bf5c-da3d6beb454b"
+}
+
+- Muscle Group
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8091-99aa-c1631aa6987a"
+}
+
+- Name
+  Type: title
+
+
+
+=== Exercise Compatibility ===
+Database ID: 1affbbda-6790-808b-842f-db346b26c258
+
+Fields:
+
+- Exercise 2
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8020-bf5c-da3d6beb454b"
+}
+
+- Reason
+  Type: rich_text
+
+- Exercise 1
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8020-bf5c-da3d6beb454b"
+}
+
+- Name
+  Type: title
+
+
+
+=== Macrocycles ===
+Database ID: 1affbbda-6790-8021-8754-ed2f229db922
+
+Fields:
+
+- End Date
+  Type: date
+
+- Fitness Goal
+  Type: select
+  Options: {
+  "options": [
+    "Hypertrophy",
+    "Strength"
+  ]
+}
+
+- Start Date
+  Type: date
+
+- Phase
+  Type: select
+  Options: {
+  "options": [
+    "Accumulation",
+    "Intensification",
+    "Deload"
+  ]
+}
+
+- Total Weeks
+  Type: number
+
+- Phase Week
+  Type: number
+
+- Users
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-80b3-a04f-dda57607087f"
+}
+
+- Name
+  Type: title
+
+
+
+=== Workout day ===
+Database ID: 1affbbda-6790-80bd-9ef2-e1ff22b7de86
+
+Fields:
+
+- Sequence Order
+  Type: number
+
+- workout plan
+  Type: relation
+  Options: {
+  "database_id": "1bffbbda-6790-8010-ad32-f48986ae8c36"
+}
+
+- Name
+  Type: title
+
+
+
+=== Workout Days ===
+Database ID: 1b5fbbda-6790-816b-a08b-e42ffed82b3b
+
+Fields:
+
+- Workout Plan
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8021-8754-ed2f229db922"
+}
+
+- Day of Week
+  Type: select
+  Options: {
+  "options": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ]
+}
+
+- Order
+  Type: number
+
+- Name
+  Type: title
+
+
+
+=== Workout Day Exercises ===
+Database ID: 1affbbda-6790-8099-884d-fedb5ce650c3
+
+Fields:
+
+- Reps
+  Type: number
+
+- Exercise
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8020-bf5c-da3d6beb454b"
+}
+
+- Sets
+  Type: number
+
+- Rest Between Sets
+  Type: number
+
+- Day
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-80bd-9ef2-e1ff22b7de86"
+}
+
+- Weight
+  Type: number
+
+- Name
+  Type: title
+
+
+
+=== Workout day Execution ===
+Database ID: 1affbbda-6790-800a-99ca-c44f716895a9
+
+Fields:
+
+- Workout day
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-80bd-9ef2-e1ff22b7de86"
+}
+
+- Notes
+  Type: rich_text
+
+- User
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-80b3-a04f-dda57607087f"
+}
+
+- Date
+  Type: date
+
+- Name
+  Type: title
+
+
+
+===  Exercise History ===
+Database ID: 1affbbda-6790-80cb-b038-c25f4b34a1f7
+
+Fields:
+
+- workout day execution
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8099-884d-fedb5ce650c3"
+}
+
+- Exercise
+  Type: relation
+  Options: {
+  "database_id": "1affbbda-6790-8020-bf5c-da3d6beb454b"
+}
+
+- Timestamp
+  Type: date
+
+- Weight Used
+  Type: number
+
+- Sets Completed
+  Type: number
+
+- Reps Completed
+  Type: number
+
+- Name
+  Type: title
+
+
+
